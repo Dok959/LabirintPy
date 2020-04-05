@@ -19,7 +19,7 @@ def main(temp):
         mas = [line.strip() for line in f]
         print(mas)
         t = int(mas[0])
-
+        print(t)
 
 
 
