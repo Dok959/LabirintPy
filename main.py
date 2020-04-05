@@ -14,19 +14,26 @@ table = [[True, False, False, False],
          [False, True, True, True],
          [True, True, True, True]]
 
-def main(temp):
-    with open(temp, 'r' ,encoding = 'utf-8') as f:
-        mas = [line.strip() for line in f]
-        print(mas)
-        t = int(mas[0])
-        print(t)
+#чтение файла
+def main(file):
+    with open(file) as f:
+        t = f.read().split("\n")
+        for i in range(1, len(t)):
+            temp = t[i].replace(" ", "RR")
+            func(i, temp)
+
+#обработка
+def func(n, temp):
+    print(temp)
 
 
 
 
+#печать 
+def printf(n, t):
+    print('Case # ' + n)
 
 
-
-
-#задать название файла и программа отработает
-main("small-test.in.txt")
+#точка входа; задать название файла и программа отработает
+#main("small-test.in.txt")
+main("test.txt")
