@@ -1,75 +1,68 @@
-table = [[True, False, False, False],
-         [False, True, False, False],
-         [True, True, False, False],
-         [False, False, True, False],
-         [True, False, True, False],
-         [False, True, True, False],
-         [True, True, True, False],
-         [False, False, False, True],
-         [True, False, False, True],
-         [False, True, False, True],
-         [True, True, False, True],
-         [False, False, True, True],
-         [True, False, True, True],
-         [False, True, True, True],
-         [True, True, True, True]]
+from collections import defaultdict
+
+NORTH, SOUTH, WEST, EAST = [2 ** i for i in range(4)] # обозначаем стороны света (1,2,4,8)
+# Смещения координат при движении
+OFFSETS = {
+	NORTH: ( 0, -1),
+	SOUTH: ( 0,  1),
+	WEST:  (-1,  0),
+	EAST:  ( 1,  0),
+}
+# Противоположные направления
+OPPOSITES = {
+	NORTH: SOUTH,
+	SOUTH: NORTH,
+	WEST:  EAST,
+	EAST:  WEST,
+}
+# Смена направлений при повороте на лево
+LEFTS = {
+	NORTH: WEST,
+	WEST:  SOUTH,
+	SOUTH: EAST,
+	EAST:  NORTH,
+}
+# Смена направлений при повороте на право
+RIGHTS = {
+	NORTH: EAST,
+	EAST:  SOUTH,
+	SOUTH: WEST,
+	WEST:  NORTH,
+}
 
 #чтение файла
 def main(file):
     with open(file) as f:
-        t = f.read().split("\n")
-        for i in range(1, len(t)):
-            temp = t[i].replace(" ", "RR")
-            func(i, temp)
+        t = int(f.readline())
+        fileWrite = open('out-file.txt', 'w')
+        for i in range(t):
+            fileWrite.write("Case #%s:" % (i+1)+'\n')
+            fileWrite.write(func(*f.readline().split(' '))+"\n")
 
 #обработка
-def func(n, path):
-    temp = ""
-    flag = False
-    for i in range(1, len(path)):
-        mas = []
-        if path[i] == "W":
-            if flag == False:
-                mas.append(True, True, False, False)
-            elif flag == True:
-                mas.append(False, False, True, True)
-        elif path[i] == "L":
-            if path[i-1] == "W":
-                mas.append(True, False, False, True)
-        else:
-            if path[i-1] == "W":
-                mas.append(True, False, True, False)
-            elif path[i-1] == "R":
-                mas.append(True, False, False, False)
-        temp += block(mas, table)
-        
-
-#определение границ
-def block(mas, table):
-    for i in range(len(table)):
-        if table[i] == mas:
-            index(i)
-
-#определение цифры или буквы
-def index(i):
-    if i == 10:
-        return "a"
-    elif i == 11:
-        return "b"
-    elif i == 12:
-        return "c"
-    elif i == 13:
-        return "d"
-    elif i == 14:
-        return "e"
-    elif i == 15:
-        return "f"
-    else:
-        return i
-
-#печать 
-def printf(n, t):
-    print('Case # ' + n)
+def func(entrance_to_exit, exit_to_entrance):
+    maze = defaultdict(int) # Создаем словарь
+    x, y = 0, -1
+    direction = SOUTH # Начальное направление 
+    for path in [entrance_to_exit, exit_to_entrance]: # Проходим по каждому лабириниту
+        for c in path: # Проходим по каждому значению
+        # Двигаемся впред
+            if c == "W":
+                dx, dy = OFFSETS[direction]
+                x += dx
+                y += dy
+                maze[x, y] |= OPPOSITES[direction] # Записываем направлений для каждой комнаты и каждого лабиринта(прямого, обратного)
+            elif c == "L":
+                direction = LEFTS[direction]
+            elif c == "R":
+                direction = RIGHTS[direction]
+    # До ходим до конца лабиринта, меняем направление на противоположное
+        direction = OPPOSITES[direction]
+        del maze[(x, y)] # Удаляем не нужную комнату (Выход)
+    xs = sorted(set(x for x, _ in iter(maze.keys())))
+    ys = sorted(set(y for _, y in iter(maze.keys())))
+    # Возращаем значения в выходной файл
+    return "\n".join("".join("%x" % maze[x, y] for x in xs) for y in ys)
 
 
 #точка входа; задать название файла и программа отработает
